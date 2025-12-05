@@ -81,3 +81,51 @@ export const analyzeResume = async (
     throw error;
   }
 };
+
+export const improveResume = async (
+  resumeBase64: string,
+  resumeMimeType: string,
+  jobDescription: string,
+  analysis: AtsAnalysisResult
+): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              mimeType: resumeMimeType,
+              data: resumeBase64,
+            },
+          },
+          {
+            text: `You are a professional expert resume writer. 
+            Rewrite the attached resume to specifically target the following Job Description, aiming for an ATS score of 100.
+            
+            JOB DESCRIPTION:
+            ${jobDescription}
+            
+            CONSIDER THESE IMPROVEMENTS:
+            Missing Keywords: ${analysis.missingKeywords.join(', ')}
+            Weaknesses: ${analysis.weaknesses.join(', ')}
+            
+            INSTRUCTIONS:
+            1. Optimize the professional summary, skills, and work experience descriptions to align with the JD.
+            2. Integrate missing keywords naturally.
+            3. Use strong action verbs and quantify achievements where possible.
+            4. Return the result as a complete, single HTML document with embedded CSS.
+            5. The design should be clean, professional, and minimal (ATS friendly). Use a sans-serif font.
+            6. Do not include any markdown fences (like \`\`\`html), just return the raw HTML code starting with <!DOCTYPE html>.
+            `
+          },
+        ],
+      },
+    });
+
+    return response.text || "";
+  } catch (error) {
+    console.error("Error improving resume:", error);
+    throw error;
+  }
+};

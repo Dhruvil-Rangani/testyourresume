@@ -6,12 +6,12 @@ interface ScoreGaugeProps {
 }
 
 const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score }) => {
-  const data = [{ name: 'Score', value: score, fill: '#6366f1' }]; // Indigo-500
+  const data = [{ name: 'Score', value: score, fill: '#0d9488' }]; // teal-600 default
 
   // Determine color based on score
-  let color = '#ef4444'; // Red-500
-  if (score >= 50) color = '#eab308'; // Yellow-500
-  if (score >= 75) color = '#22c55e'; // Green-500
+  let color = '#f43f5e'; // Rose-500
+  if (score >= 50) color = '#f59e0b'; // Amber-500
+  if (score >= 75) color = '#10b981'; // Emerald-500
   
   data[0].fill = color;
 
@@ -34,15 +34,14 @@ const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score }) => {
           />
           <RadialBar
             background
-            clockWise
             dataKey="value"
             cornerRadius={10}
           />
         </RadialBarChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span className="text-4xl font-bold text-slate-800">{score}</span>
-        <span className="text-sm font-medium text-slate-500">ATS Score</span>
+        <span className="text-4xl font-bold text-stone-800">{score}</span>
+        <span className="text-sm font-medium text-stone-500">ATS Score</span>
       </div>
     </div>
   );
