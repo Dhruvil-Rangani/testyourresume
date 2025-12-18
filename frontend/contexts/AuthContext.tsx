@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
-import { dbService } from '../backend/db';
+import { dbService } from '../../backend/db';
 
 interface AuthContextType {
   user: User | null;
@@ -13,36 +13,36 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const GUEST_ID = 'persistent_user_context';
+const USER_KEY = 'ats_user_v2';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initBackend = async () => {
+    const init = async () => {
       await dbService.init();
-      const existing = await dbService.getUser(GUEST_ID);
-      if (existing) {
-        setUser(existing);
+      const stored = await dbService.getUser(USER_KEY);
+      if (stored) {
+        setUser(stored);
       } else {
-        const guest: User = { id: GUEST_ID, email: '', name: 'Guest User', plan: 'free', creditsUsed: 0, maxCredits: 5 };
+        const guest: User = { id: USER_KEY, email: '', name: 'Guest', plan: 'free', creditsUsed: 0, maxCredits: 5 };
         await dbService.saveUser(guest);
         setUser(guest);
       }
       setIsLoading(false);
     };
-    initBackend();
+    init();
   }, []);
 
   const login = async (email: string) => {
-    const updatedUser: User = { ...user!, email, name: email.split('@')[0], plan: 'free' };
-    await dbService.saveUser(updatedUser);
-    setUser(updatedUser);
+    const loggedIn: User = { ...user!, email, name: email.split('@')[0] };
+    await dbService.saveUser(loggedIn);
+    setUser(loggedIn);
   };
 
   const logout = () => {
-    const guest: User = { id: GUEST_ID, email: '', name: 'Guest User', plan: 'free', creditsUsed: 0, maxCredits: 5 };
+    const guest: User = { id: USER_KEY, email: '', name: 'Guest', plan: 'free', creditsUsed: 0, maxCredits: 5 };
     setUser(guest);
   };
 
@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const upgradePlan = async () => {
     if (!user) return;
-    const updated = { ...user, plan: 'pro' as const, maxCredits: 999999 };
+    const updated = { ...user, plan: 'pro' as const, maxCredits: 99999 };
     await dbService.saveUser(updated);
     setUser(updated);
   };
@@ -69,6 +69,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('AuthProvider missing');
+  if (!context) throw new Error('Missing AuthProvider');
   return context;
 };
