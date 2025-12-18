@@ -10,7 +10,7 @@ export const analyzeResume = async (
 ): Promise<AtsAnalysisResult> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: {
         parts: [
           {
@@ -90,7 +90,7 @@ export const improveResume = async (
 ): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: {
         parts: [
           {
@@ -100,30 +100,33 @@ export const improveResume = async (
             },
           },
           {
-            text: `You are a professional expert resume writer. 
-            Rewrite the attached resume to specifically target the following Job Description, aiming for an ATS score of 100.
+            text: `You are a professional expert resume re-writer. 
+            Your goal is to optimize the text of the attached resume for the Job Description while CLONING the original structure perfectly.
             
             JOB DESCRIPTION:
             ${jobDescription}
             
-            CONSIDER THESE IMPROVEMENTS:
+            OPTIMIZATION TARGETS:
             Missing Keywords: ${analysis.missingKeywords.join(', ')}
-            Weaknesses: ${analysis.weaknesses.join(', ')}
+            Current Gaps: ${analysis.weaknesses.join(', ')}
             
-            INSTRUCTIONS:
-            1. Optimize the professional summary, skills, and work experience descriptions to align with the JD.
-            2. Integrate missing keywords naturally.
-            3. Use strong action verbs and quantify achievements where possible.
-            4. Return the result as a complete, single HTML document with embedded CSS.
-            5. The design should be clean, professional, and minimal (ATS friendly). Use a sans-serif font.
-            6. Do not include any markdown fences (like \`\`\`html), just return the raw HTML code starting with <!DOCTYPE html>.
-            `
+            STRICT INSTRUCTIONS:
+            1. CLONE THE STRUCTURE: Identify every section in the original resume (e.g., Contact Info, Summary, Work History, Education, Skills). Keep them in the EXACT same order.
+            2. SECTION HEADINGS: Use the exact same headings used in the original.
+            3. CONTENT OPTIMIZATION: Rewrite the content WITHIN those sections. Improve bullet points to be impact-driven. Naturally weave in the Missing Keywords.
+            4. FORMATTING: Return a high-quality HTML document with embedded CSS. 
+            5. STYLE: Clean, professional, single-column. Font: Arial, size 10-11pt. Use bold for job titles. 
+            6. PAGING: Ensure the CSS is optimized for A4/Letter printing (margins: 1 inch).
+            7. DO NOT include any conversational text or markdown blocks. Return only <html>...</html>.`
           },
         ],
       },
     });
 
-    return response.text || "";
+    // Strip markdown if the model accidentally included it
+    let html = response.text || "";
+    html = html.replace(/```html/g, "").replace(/```/g, "").trim();
+    return html;
   } catch (error) {
     console.error("Error improving resume:", error);
     throw error;
