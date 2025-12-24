@@ -10,20 +10,19 @@
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;
       }
-      /* Custom scrollbar for better aesthetics */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: transparent; 
+        background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #d6d3d1; /* stone-300 */
+        background: #d6d3d1;
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #a8a29e; /* stone-400 */
+        background: #a8a29e;
       }
       .glass-panel {
         background: rgba(255, 255, 255, 0.8);
@@ -31,28 +30,20 @@
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.6);
       }
-      /* Modern Warm/Teal Gradient */
       .mesh-gradient {
-        background-color: #FAFAF9; /* stone-50 */
+        background-color: #FAFAF9;
         background-image: 
           radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.15) 0, transparent 50%), 
           radial-gradient(at 100% 0%, rgba(251, 146, 60, 0.1) 0, transparent 50%), 
           radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.1) 0, transparent 50%);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
-  }
-}
-</script>
-</head>
+  </head>
   <body class="bg-stone-50 text-stone-900 antialiased mesh-gradient selection:bg-teal-500 selection:text-white min-h-screen">
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
+
+
+

@@ -1,5 +1,4 @@
-
-import { FileData, AtsAnalysisResult, User } from '../types';
+import { FileData, AtsAnalysisResult, User } from '../../frontend/types';
 
 const DB_NAME = 'ATSMasterDB';
 const DB_VERSION = 1;
@@ -60,7 +59,7 @@ export class DatabaseService {
 
   async saveUser(user: User): Promise<void> {
     if (!this.db) await this.init();
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const transaction = this.db!.transaction(['user'], 'readwrite');
       const store = transaction.objectStore('user');
       store.put(user);
@@ -70,7 +69,7 @@ export class DatabaseService {
 
   async getUser(id: string): Promise<User | null> {
     if (!this.db) await this.init();
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const transaction = this.db!.transaction(['user'], 'readonly');
       const store = transaction.objectStore('user');
       const request = store.get(id);
@@ -80,3 +79,6 @@ export class DatabaseService {
 }
 
 export const dbService = new DatabaseService();
+
+
+
