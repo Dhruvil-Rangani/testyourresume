@@ -68,7 +68,7 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (isLoading) return <div className="h-screen flex items-center justify-center font-bold text-stone-400">CONNECTING TO BACKEND...</div>;
+  if (isLoading) return <div className="h-screen flex items-center justify-center font-bold text-stone-400 bg-stone-50">INITIALIZING AI MASTER...</div>;
 
   return (
     <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans">
@@ -94,9 +94,9 @@ const AppContent: React.FC = () => {
       <div className="space-y-12">
         <header className="text-center space-y-4 max-w-4xl mx-auto mt-8">
            <div className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-medium text-teal-800">
-            Professional AI Backend v2.0
+            Professional AI Backend Integration
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-stone-900">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-stone-900 leading-tight">
             ATS <span className="text-teal-600">Master</span>
           </h1>
           <p className="text-stone-500 text-lg">AI-Powered Resume Optimization Platform</p>
@@ -105,7 +105,7 @@ const AppContent: React.FC = () => {
         <main className="glass-panel rounded-3xl shadow-2xl border border-white p-6 md:p-10 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-stone-800">Resume Source</h2>
+              <h2 className="text-xl font-bold text-stone-800">Resume Source (PDF)</h2>
               <FileUpload onFileSelect={setResumeFile} selectedFile={resumeFile} />
             </div>
             <div className="space-y-4">
@@ -126,7 +126,7 @@ const AppContent: React.FC = () => {
               className={`px-12 py-4 rounded-2xl font-bold text-lg text-white shadow-xl transition-all 
                 ${!resumeFile || !jobDescription || status === AnalysisStatus.ANALYZING ? 'bg-stone-300' : 'bg-stone-900 hover:bg-teal-600'}`}
             >
-              {status === AnalysisStatus.ANALYZING ? "Analyzing..." : "Calculate Match"}
+              {status === AnalysisStatus.ANALYZING ? "Processing AI Analysis..." : "Check Match Score"}
             </button>
           </div>
         </main>
@@ -138,8 +138,8 @@ const AppContent: React.FC = () => {
                <div className="flex-1 text-center md:text-left space-y-4">
                   <h3 className="text-3xl font-bold text-stone-900">ATS Insights</h3>
                   <p className="text-stone-700 leading-relaxed text-lg bg-stone-50 p-6 rounded-xl border border-stone-200">{result.summary}</p>
-                  <button onClick={() => setShowFullReport(!showFullReport)} className="px-8 py-3 rounded-xl border border-teal-200 text-teal-700 font-bold bg-teal-50">
-                    {showFullReport ? "Hide Detailed Report" : "View Full Report"}
+                  <button onClick={() => setShowFullReport(!showFullReport)} className="px-8 py-3 rounded-xl border border-teal-200 text-teal-700 font-bold bg-teal-50 hover:bg-teal-100 transition-all">
+                    {showFullReport ? "Collapse Report" : "Inspect Detailed Analysis"}
                   </button>
                </div>
              </section>
