@@ -1,17 +1,16 @@
 
 import React, { useState } from 'react';
 import { AnalysisStatus, AtsAnalysisResult, FileData } from './types';
-import { performAtsAnalysis, generateOptimizedResume } from '../backend/ai';
-import { createCheckoutSession } from '../backend/stripe';
+import { performAtsAnalysis, generateOptimizedResume } from './backend/ai';
 import FileUpload from './components/FileUpload';
 import ScoreGauge from './components/ScoreGauge';
 import AnalysisReport from './components/AnalysisReport';
 import ImprovementPreview from './components/ImprovementPreview';
-import CompanyInsights from './components/CompanyInsights';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import PricingModal from './components/PricingModal';
+import { createCheckoutSession } from './backend/stripe';
 
 const AppContent: React.FC = () => {
   const { user, incrementUsage, upgradePlan, isLoading } = useAuth();
@@ -21,6 +20,7 @@ const AppContent: React.FC = () => {
   const [status, setStatus] = useState<AnalysisStatus>(AnalysisStatus.IDLE);
   const [result, setResult] = useState<AtsAnalysisResult | null>(null);
   const [showFullReport, setShowFullReport] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   const [isImproving, setIsImproving] = useState<boolean>(false);
   const [improvedResumeHtml, setImprovedResumeHtml] = useState<string | null>(null);
@@ -38,6 +38,7 @@ const AppContent: React.FC = () => {
     if (!fileToAnalyze || !jobDescription.trim()) return;
 
     setStatus(AnalysisStatus.ANALYZING);
+    setErrorMsg(null);
     setShowFullReport(false);
 
     try {
@@ -46,7 +47,7 @@ const AppContent: React.FC = () => {
       setStatus(AnalysisStatus.COMPLETE);
       await incrementUsage();
     } catch (err) {
-      console.error("Analysis failed:", err);
+      setErrorMsg("Backend communication failure.");
       setStatus(AnalysisStatus.ERROR);
     }
   };
@@ -58,13 +59,11 @@ const AppContent: React.FC = () => {
       const optimizedHtml = await generateOptimizedResume(resumeFile.base64, resumeFile.mimeType, jobDescription, result);
       setImprovedResumeHtml(optimizedHtml);
     } catch (err) {
-      console.error("Improvement failed:", err);
-    } finally { 
-      setIsImproving(false); 
-    }
+      setErrorMsg("Optimization failed.");
+    } finally { setIsImproving(false); }
   };
 
-  const handlePayment = async (plan: 'monthly' | 'annual') => {
+  const handlePaymentFlow = async (plan: 'monthly' | 'annual') => {
     const success = await createCheckoutSession(plan);
     if (success) {
       await upgradePlan();
@@ -72,20 +71,20 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (isLoading) return (
-    <div className="h-screen flex items-center justify-center font-bold text-stone-400 bg-stone-50">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-        <span className="tracking-widest uppercase text-xs">Initializing AI Master...</span>
-      </div>
-    </div>
-  );
+  if (isLoading) return <div className="h-screen flex items-center justify-center bg-stone-50">Initializing App Architecture...</div>;
 
   return (
-    <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans min-h-screen">
+    <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans">
       <Navbar onOpenAuth={() => setShowAuthModal(true)} onOpenPricing={() => setShowPricingModal(true)} />
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} onSubscribe={handlePayment} />
+      
+      {showPricingModal && (
+        <PricingModal 
+          isOpen={showPricingModal} 
+          onClose={() => setShowPricingModal(false)}
+          onSubscribe={handlePaymentFlow} 
+        />
+      )}
 
       {improvedResumeHtml && resumeFile && (
         <ImprovementPreview 
@@ -103,100 +102,64 @@ const AppContent: React.FC = () => {
       )}
 
       <div className="space-y-12">
-        <header className="text-center space-y-4 max-w-4xl mx-auto mt-8 animate-in fade-in duration-700">
+        <div className="text-center space-y-4 max-w-4xl mx-auto mt-8">
            <div className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-medium text-teal-800">
-            AI-Native Orchestration Engine
+            Backend/Frontend Separated Architecture
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-stone-900 leading-tight">
-            ATS <span className="text-teal-600">Master</span>
+            ATS <span className="text-teal-600">Master</span> AI
           </h1>
-          <p className="text-stone-500 text-lg">Integrated workflow for modern recruitment automation.</p>
-        </header>
+          <p className="text-stone-500 text-lg">Re-engineer your career with AI-driven resume optimization.</p>
+        </div>
 
-        <main className="glass-panel rounded-3xl shadow-2xl border border-white p-6 md:p-10 space-y-8 animate-in zoom-in-95 duration-500">
+        <div className="glass-panel rounded-3xl shadow-2xl border border-white p-6 md:p-10 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-stone-800 flex items-center gap-2">
-                <span className="w-6 h-6 rounded bg-stone-100 flex items-center justify-center text-xs">1</span>
-                Resume Source (PDF)
-              </h2>
+              <h2 className="text-xl font-bold text-stone-800 flex items-center gap-3">Upload Resume</h2>
               <FileUpload onFileSelect={setResumeFile} selectedFile={resumeFile} />
             </div>
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-stone-800 flex items-center gap-2">
-                <span className="w-6 h-6 rounded bg-stone-100 flex items-center justify-center text-xs">2</span>
-                Job Description
-              </h2>
+              <h2 className="text-xl font-bold text-stone-800 flex items-center gap-3">Job Description</h2>
               <textarea
                 className="w-full h-44 p-4 rounded-xl border border-stone-200 bg-white focus:ring-2 focus:ring-teal-500 transition-all text-sm resize-none"
-                placeholder="Paste the target JD here..."
+                placeholder="Paste the target job description here..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center">
             <button
               onClick={() => handleAnalyze()}
               disabled={!resumeFile || !jobDescription || status === AnalysisStatus.ANALYZING}
               className={`px-12 py-4 rounded-2xl font-bold text-lg text-white shadow-xl transition-all 
-                ${!resumeFile || !jobDescription || status === AnalysisStatus.ANALYZING 
-                  ? 'bg-stone-300 cursor-not-allowed opacity-70' 
-                  : 'bg-stone-900 hover:bg-teal-600 active:scale-95'}`}
+                ${!resumeFile || !jobDescription || status === AnalysisStatus.ANALYZING ? 'bg-stone-300' : 'bg-stone-900 hover:bg-teal-600'}`}
             >
               {status === AnalysisStatus.ANALYZING ? "Analyzing Match..." : "Check ATS Match"}
             </button>
           </div>
-        </main>
+        </div>
 
         {status === AnalysisStatus.COMPLETE && result && (
-          <div className="space-y-8 pb-16 animate-in slide-in-from-bottom-8 duration-700">
-            <section className="bg-white rounded-3xl shadow-xl border border-stone-100 p-8 md:p-12 flex flex-col md:flex-row items-center gap-12">
-              <ScoreGauge score={result.score} />
-              <div className="flex-1 text-center md:text-left space-y-4">
-                <h3 className="text-3xl font-black text-stone-900 tracking-tight">Analysis Complete</h3>
-                <p className="text-stone-600 leading-relaxed text-lg bg-stone-50 p-6 rounded-2xl border border-stone-100 italic">
-                  "{result.summary}"
-                </p>
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <button 
-                    onClick={() => setShowFullReport(!showFullReport)} 
-                    className="px-8 py-3 rounded-xl border-2 border-teal-600 text-teal-600 font-bold hover:bg-teal-50 transition-all"
-                  >
-                    {showFullReport ? "Hide Detailed Findings" : "Deep Dive Report"}
+           <div className="space-y-6 pb-16">
+             <div className="bg-white rounded-3xl shadow-xl border border-stone-100 p-8 md:p-12 flex flex-col md:flex-row items-center gap-12">
+               <ScoreGauge score={result.score} />
+               <div className="flex-1 text-center md:text-left space-y-4">
+                  <h3 className="text-3xl font-bold text-stone-900">Analysis Summary</h3>
+                  <p className="text-stone-700 leading-relaxed text-lg bg-stone-50 p-6 rounded-xl border border-stone-200">{result.summary}</p>
+                  <button onClick={() => setShowFullReport(!showFullReport)} className="px-8 py-3 rounded-xl border border-teal-200 text-teal-700 font-bold bg-teal-50">
+                    {showFullReport ? "Hide Report" : "View Detailed Report"}
                   </button>
-                </div>
-              </div>
-            </section>
-
-            {/* Injected Company Research via Google Search Grounding */}
-            {result.research && <CompanyInsights research={result.research} />}
-
-            {showFullReport && (
-              <AnalysisReport 
-                result={result} 
-                onImprove={handleImproveResume} 
-                isImproving={isImproving} 
-              />
-            )}
-          </div>
-        )}
-
-        {status === AnalysisStatus.ERROR && (
-          <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-center font-bold">
-            Analysis failed. Please check your connection or API key.
-          </div>
+               </div>
+             </div>
+             {showFullReport && <AnalysisReport result={result} onImprove={handleImproveResume} isImproving={isImproving} />}
+           </div>
         )}
       </div>
     </div>
   );
 };
 
-const App: React.FC = () => (
-  <AuthProvider>
-    <AppContent />
-  </AuthProvider>
-);
-
+const App: React.FC = () => <AuthProvider><AppContent /></AuthProvider>;
 export default App;

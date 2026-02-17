@@ -1,11 +1,3 @@
-
-export interface CompanyResearch {
-  companyName: string;
-  recentNews: string;
-  interviewTips: string[];
-  sources: { title: string; uri: string }[];
-}
-
 export interface AtsAnalysisResult {
   score: number;
   summary: string;
@@ -14,7 +6,6 @@ export interface AtsAnalysisResult {
   missingKeywords: string[];
   formattingIssues: string[];
   improvementPlan: string[];
-  research?: CompanyResearch;
 }
 
 export interface FileData {
@@ -36,7 +27,7 @@ export interface User {
   name: string;
   plan: 'free' | 'pro';
   creditsUsed: number;
-  maxCredits: number;
+  maxCredits: number; // 5 for free, Infinity for pro
 }
 
 export interface AuthState {

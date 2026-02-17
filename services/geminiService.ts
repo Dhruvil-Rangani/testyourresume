@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { AtsAnalysisResult } from "../../frontend/types";
+import { AtsAnalysisResult } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -123,6 +123,7 @@ export const improveResume = async (
       },
     });
 
+    // Strip markdown if the model accidentally included it
     let html = response.text || "";
     html = html.replace(/```html/g, "").replace(/```/g, "").trim();
     return html;
@@ -131,6 +132,3 @@ export const improveResume = async (
     throw error;
   }
 };
-
-
-
